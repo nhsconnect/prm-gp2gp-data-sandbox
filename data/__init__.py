@@ -37,6 +37,27 @@ index="gp2gp-mi" sourcetype="gppractice-RR"
   columns=None
 )
 
+PRMT_365_ODS_Supplier_Mapping = DataSource(
+  description="""Mapping from GP ODS Code to supplier for 2019-05-01 to 2019-08-31. Only includes data for ODS codes where only
+  one supplier was mentioned during that period.
+
+  index="gp2gp-mi" souretype="gppractice-HR"
+| rex field=RequestorSoftware "(?<Supplier>.*)_(?<System>.*)_(?<Version>.*)"
+| stats min(ReportTimePeriod) as From,
+        max(ReportTimePeriod) as To
+        BY RequestorODS, Supplier
+| stats values(eval(From + "--" + To + ":" + Supplier)) as SupplierDateRanges,
+        values(Supplier) as Supplier,
+        count
+        BY RequestorODS
+| where count=1
+| eval ODSCode=RequestorODS
+| table ODSCode, Supplier
+  """,
+  path=os.path.join(_DATA_DIR_PATH, "PRMT_365_ODS_to_Supplier_Mapping.csv"),
+  columns=None
+)
+
 GP_ODS_Data = DataSource(
   description="""Retrieved from https://digital.nhs.uk/services/organisation-data-service/data-downloads/gp-and-gp-practice-related-data on 20191003.
   

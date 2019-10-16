@@ -58,6 +58,20 @@ PRMT_365_ODS_Supplier_Mapping = DataSource(
   columns=None
 )
 
+PRMT_372_attachment_sizes = DataSource(
+  description="""
+index="gp2gp-mi" sourcetype="gppractice-RR"
+| eval key=RegistrationTime + "-" + RegistrationSmartcardUID
+| eval month=substr(RegistrationTime, 6, 2)
+| rex ": (?<attachment_size>\d+) is larger than TPP limit"
+| eval attachment_size_mb=attachment_size / (1024 * 1024)
+| search attachment_size=*
+| table key, month, RequestorODS, attachment_size_mb
+  """,
+  path=os.path.join(_DATA_DIR_PATH, "PRMT_372_attachment_sizes.csv"),
+  columns=None
+)
+
 GP_ODS_Data = DataSource(
   description="""Retrieved from https://digital.nhs.uk/services/organisation-data-service/data-downloads/gp-and-gp-practice-related-data on 20191003.
   

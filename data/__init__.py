@@ -63,10 +63,10 @@ PRMT_372_attachment_sizes = DataSource(
 index="gp2gp-mi" sourcetype="gppractice-RR"
 | eval key=RegistrationTime + "-" + RegistrationSmartcardUID
 | eval month=substr(RegistrationTime, 6, 2)
-| rex ": (?<attachment_size>\d+) is larger than TPP limit"
+| rex "Attachment size (after decompression)?: (?<attachment_size>\d+) is larger than TPP limit"
 | eval attachment_size_mb=attachment_size / (1024 * 1024)
 | search attachment_size=*
-| table key, month, RequestorODS, attachment_size_mb
+| table key, month, RequestorODS, attachment_size_mb​
   """,
   path=os.path.join(_DATA_DIR_PATH, "PRMT_372_attachment_sizes.csv"),
   columns=None

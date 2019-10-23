@@ -22,6 +22,11 @@ The `data` directory contains data-sets (typically exported via queries from NMS
    (venv)$ pip install --upgrade pip
    (venv)$ pip install -r requirements.txt
    ```
+3. Configure [`nbdime` (link)](nbdime.readthedocs.io/en/latest/) for viewing diffs in jupyter notebooks
+   ```sh
+   (venv)$ nbdime config-git --enable
+   ```
+   If you receive an error like `fatal: external diff died, stopping at <notebook path>.ipynb` when running `git diff`, then check that the virtual environment is activated - this should fix the issue. 
 
 To deactivate the virtual environment:
 ```sh

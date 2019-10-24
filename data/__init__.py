@@ -96,6 +96,22 @@ index="gp2gp-mi" sourcetype="gppractice-RR" ConversationID=*
   columns=None
 )
 
+EXP_self_to_self = DataSource(
+  description="""
+index="gp2gp-mi" sourcetype="gppractice-RR" 
+| eval key=RegistrationTime + "-" + RegistrationSmartcardUID
+| lookup GP2GP-Practice-Lookup PracticeCode AS RequestorODS OUTPUTNEW CurrentClinicalSupplier as requestor_supplier 
+| eval was_retry=if(SenderODS=RequestorODS, 1, 0)
+| eval month=substr(RegistrationTime, 6, 2) 
+| table key, month, was_retry, RequestorODS, requestor_supplier
+| dedup key
+| stats count as registration_count, sum(was_retry) as retry_count by RequestorODS, month, requestor_supplier
+| eval retry_rate = retry_count/registration_count
+""",
+  path=os.path.join(_DATA_DIR_PATH, "self_to_self.csv"),
+  columns=None
+)
+
 practices_with_concurrently_reporting_foundation_systems = DataSource(
   description="""
   This was generated to investigate whether the MI data can give useful information on how long it takes to complete a practice migration.

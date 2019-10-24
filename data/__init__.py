@@ -72,6 +72,27 @@ index="gp2gp-mi" sourcetype="gppractice-RR"
   columns=None
 )
 
+
+practices_with_concurrently_reporting_foundation_systems = DataSource(
+  description="""
+  This was generated to investigate whether the MI data can give useful information on how long it takes to complete a practice migration.
+
+  Run from Apr 1st - September 30th, on 2019-10-24
+
+index="gp2gp-mi" sourcetype="gppractice-HR"
+| rex field=RequestorSoftware "(?<Supplier>.*)_(?<System>.*)_(?<Version>.*)"
+| stats count BY RequestorODS, ReportTimePeriod
+| search count=2
+| stats min(ReportTimePeriod) as From,
+        max(ReportTimePeriod) as To,
+        count
+        BY RequestorODS
+  """,
+  path=os.path.join(_DATA_DIR_PATH, "practices_with_concurrently_reporting_foundation_systems.csv"),
+  columns=None
+)
+
+
 GP_ODS_Data = DataSource(
   description="""Retrieved from https://digital.nhs.uk/services/organisation-data-service/data-downloads/gp-and-gp-practice-related-data on 20191003.
   
@@ -90,6 +111,7 @@ GP_ODS_Data = DataSource(
       "PrescribingSetting",
       "Null6"]
 )
+
 
 GP_CCG_Mapping = DataSource(
   description="""Retrieved from https://digital.nhs.uk/services/organisation-data-service/data-downloads/gp-and-gp-practice-related-data on 20191007.

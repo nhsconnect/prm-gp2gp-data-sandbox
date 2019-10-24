@@ -72,6 +72,29 @@ index="gp2gp-mi" sourcetype="gppractice-RR"
   columns=None
 )
 
+PRMT_372_outcomes_and_traces = DataSource(
+  description="""
+April - September 2019
+index="gp2gp-mi" sourcetype="gppractice-RR" ConversationID=*
+| lookup GP2GP-Practice-Lookup PracticeCode AS SenderODS OUTPUTNEW CurrentClinicalSupplier as sender_supplier 
+| lookup GP2GP-Practice-Lookup PracticeCode AS RequestorODS OUTPUTNEW CurrentClinicalSupplier as requestor_supplier
+| eval RR8=coalesce(RequestFailurePoint, "x") 
+| eval RR11=coalesce(RequestFailureType, "x") 
+| eval RR12=coalesce(RequestErrorCode, "x") 
+| eval RR22=coalesce(ExtractAckStatus, "x")
+| eval RR23=coalesce(ExtractAckCode, "xx")
+| eval trace=RR8 + "-" + RR11 + "-" + RR12 + "-" + RR22 + "-" + RR23
+| eval outcome=RR22 + "-" + RR23
+| eval key=RegistrationTime + "-" + RegistrationSmartcardUID
+| stats values(outcome) as outcomes,
+        values(trace) as traces,
+        dc(eval(outcome="1-00" or outcome="1-0" or outcome="5-15")) as success
+        by key
+| stats values(outcomes), values(traces) by success
+  """,
+  path=os.path.join(_DATA_DIR_PATH, "PRMT_372_outcomes_and_traces.csv"),
+  columns=None
+)
 
 practices_with_concurrently_reporting_foundation_systems = DataSource(
   description="""
@@ -111,7 +134,6 @@ GP_ODS_Data = DataSource(
       "PrescribingSetting",
       "Null6"]
 )
-
 
 GP_CCG_Mapping = DataSource(
   description="""Retrieved from https://digital.nhs.uk/services/organisation-data-service/data-downloads/gp-and-gp-practice-related-data on 20191007.

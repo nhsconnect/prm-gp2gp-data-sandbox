@@ -3,20 +3,22 @@ index="gp2gp-mi" sourcetype="gppractice-RR" RequestorODS=$ods_code$
 | eval hasGp2gpConversation=if(isnotnull(ConversationID), 1, 0)
 | eval wasIntegrated = if(ExtractAckStatus == "1" and ExtractAckCode in ("0", "00"), 1, 0)
 | eval wasSupressed = if(ExtractAckStatus == "5" and ExtractAckCode == "15", 1, 0)
-| eval hasUnknownRegistrationFailure = if(RequestFailurePoint == "0" and RequestFailureType == "0", 1, 0)
+| eval hasUnknownRegistrationFailure = if(RequestFailureType == "0" and (RequestFailurePoint == "0" or RequestFailurePoint == "60"), 1, 0)
 | eval isNewPatient = if(RegistrationType == "1" and RequestFailurePoint == "60" and RequestFailureType == "5", 1, 0)
 | eval isReturningPatient = if(RegistrationType == "2" and RequestFailurePoint == "60" and RequestFailureType == "5", 1, 0)
 | eval hasTransferFromNonGp2gpPractice = if(RequestFailurePoint == "40" and RequestFailureType == "4", 1, 0)
 | eval hasPatientAlreadyAtPractice = if(RequestFailurePoint == "60" and RequestFailureType == "2", 1, 0)
-| eval hasPDSLookupFailure = if(RequestFailurePoint == "20", 1, 0)
+| eval hasPDSLookupFailure = if(RequestFailurePoint == "10" or RequestFailurePoint == "20", 1, 0)
 | eval hasError = if(isnotnull(RequestFailureTime) or isnotnull(RequestFailureType), 1, 0)
 | eval hasSenderLargeMessageFailure = if(RequestFailurePoint == "60" and RequestFailureType == "6" and RequestErrorCode == "30" , 1, 0)
+| eval hasRequestorLargeMessageFailure = if(RequestFailurePoint == "60" and RequestFailureType == "1" and RequestErrorCode == "100" and ExtractAckCode == "30", 1, 0)
 | eval month=substr(RegistrationTime, 6, 2)
 | eval state = coalesce(case(
   hasGp2gpConversation == 1 and wasIntegrated == 1, "integrated",
   hasGp2gpConversation == 1 and wasSupressed == 1, "suppressed",
   hasGp2gpConversation == 1 and hasError == 0, "requested",
   hasGp2gpConversation == 1 and hasSenderLargeMessageFailure == 1, "senderLargeMessageFailure",
+  hasGp2gpConversation == 1 and hasRequestorLargeMessageFailure == 1, "requestorLargeMessageFailure",
   hasGp2gpConversation == 0 and hasPDSLookupFailure == 1, "PatientLookupFailure",
   hasGp2gpConversation == 0 and isNewPatient == 1, "newRegistration",
   hasGp2gpConversation == 0 and isReturningPatient == 1, "returningPatientNoPreviousGp",
@@ -32,6 +34,7 @@ index="gp2gp-mi" sourcetype="gppractice-RR" RequestorODS=$ods_code$
   isnotnull(mvfind(states, "suppressed")), "supressed",
   mvcount(states) = 1 AND mvindex(states, 0) = "requested", "requested",
   isnotnull(mvfind(states, "senderLargeMessageFailure")), "senderLargeMessageFailure",
+  isnotnull(mvfind(states, "requestorLargeMessageFailure")), "requestorLargeMessageFailure",
   isnotnull(mvfind(states, "newRegistration")), "newRegistration",
   isnotnull(mvfind(states, "PatientLookupFailure")), "PatientLookupFailure",
   isnotnull(mvfind(states, "returningPatientNoPreviousGp")), "returningPatientNoPreviousGp",

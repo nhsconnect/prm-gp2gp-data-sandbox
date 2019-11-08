@@ -1,6 +1,6 @@
 index="gp2gp-mi" sourcetype="gppractice-SR" SenderODS=$ods_code$
 | eval requestKey=RequestTime + "-" + SenderODS + "-" + RequestorODS
-| eval wasSentSuccessfully = if(ExtractFailurePoint == "0" and RequestAckCode == "0" or RequestAckCode == "00", 1, 0)
+| eval wasSentSuccessfully = if(ExtractFailurePoint == "0" and (RequestAckCode == "0" or RequestAckCode == "00"), 1, 0)
 | eval wasRequestNotAcknowledged = if(ExtractFailurePoint == "0" and isnull(RequestAckCode), 1, 0)
 | eval isRequestorNotLargeMessageCompliant = if(ExtractFailurePoint == "50" and RequestAckCode == "14", 1, 0)
 | eval hasUnknownSpineError = if(ExtractFailurePoint == "60" and RequestAckCode == "20", 1, 0)
@@ -17,10 +17,10 @@ index="gp2gp-mi" sourcetype="gppractice-SR" SenderODS=$ods_code$
   first(month) as month,
   list(state) as states BY SenderODS, requestKey
 | eval outcome = coalesce(case(
-   isnotnull(mvfind(states, "sentSuccessfully")), "sentSuccessfully",
-   isnotnull(mvfind(states, "requestNotAcknowledged")), "requestNotAcknowledged",
-   isnotnull(mvfind(states, "requestorNotLargeMessageCompliant")), "requestorNotLargeMessageCompliant",
-   isnotnull(mvfind(states, "unknownSpineError")), "unknownSpineError",
-   isnotnull(mvfind(states, "largeMessageGeneralFailure")), "largeMessageGeneralFailure"
+   isnotnull(mvfind(states, "sentSuccessfully")), "sent successfully",
+   isnotnull(mvfind(states, "requestNotAcknowledged")), "request not acknowledged",
+   isnotnull(mvfind(states, "requestorNotLargeMessageCompliant")), "requestor not large message compliant",
+   isnotnull(mvfind(states, "unknownSpineError")), "unknown spine error",
+   isnotnull(mvfind(states, "largeMessageGeneralFailure")), "sender large message failure"
   ), "unknown")
 | chart count over month by outcome​

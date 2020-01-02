@@ -1,0 +1,51 @@
+index="gp2gp-mi" sourcetype="gppractice-RR"
+| eval registrationKey=RegistrationTime + "-" + RegistrationSmartcardUID
+| lookup GP2GP-Practice-Lookup PracticeCode AS RequestorODS OUTPUTNEW CurrentClinicalSupplier as RequestorSupplier
+| eval hasGp2gpConversation=if(isnotnull(ConversationID), 1, 0)
+| eval wasIntegrated = if(ExtractAckStatus == "1" and ExtractAckCode in ("0", "00"), 1, 0)
+| eval wasSupressed = if(ExtractAckStatus == "5" and ExtractAckCode == "15", 1, 0)
+| eval hasError = if(isnotnull(RequestFailureTime) or isnotnull(RequestFailureType), 1, 0)
+| eval hasSenderLargeMessageFailure = if(RequestFailurePoint == "60" and RequestFailureType == "6" and RequestErrorCode == "30" , 1, 0)
+| eval hasRequestorLargeMessageFailure = if(RequestFailurePoint == "60" and RequestFailureType == "1" and RequestErrorCode == "100" and ExtractAckCode == "30", 1, 0)
+| eval isSenderNotLargeMessageCompliant = if(RequestFailurePoint == "60" and RequestFailureType == "6" and RequestErrorCode == "23" , 1, 0)
+| eval failedToGenerateExtract = if(RequestFailurePoint == "60" and RequestFailureType == "6" and RequestErrorCode == "10" , 1, 0)
+| eval wasGP2GPDisabled = if(RequestFailurePoint == "60" and RequestFailureType == "6" and RequestErrorCode == "7" , 1, 0)
+| eval hasSpineErrorLMRelated = if(RequestFailurePoint == "60" and RequestErrorCode == "20" and LargeMessageFragmentCount != "0" and isnull(ExtractAckCode) and (RequestFailureType == "6" or RequestFailureType == "0"), 1, 0)
+| eval hasSpineError = if(RequestFailurePoint == "60" and RequestErrorCode == "20" and LargeMessageFragmentCount == "0" and isnull(ExtractAckCode) and (RequestFailureType == "6" or RequestFailureType == "0"), 1, 0)
+| eval wasPatientNotAtSurgery = if(RequestFailurePoint == "60" and RequestFailureType == "6" and RequestErrorCode == "6" , 1, 0)
+| eval wasRequestorNotCurrentPractice = if(RequestFailurePoint == "60" and RequestFailureType == "6" and RequestErrorCode == "19" , 1, 0)
+| eval month=substr(RegistrationTime, 6, 2)
+| eval state = coalesce(case(
+  hasGp2gpConversation == 1 and wasIntegrated == 1, "integrated",
+  hasGp2gpConversation == 1 and wasSupressed == 1, "suppressed",
+  hasGp2gpConversation == 1 and hasError == 0, "requested",
+  hasGp2gpConversation == 1 and hasSenderLargeMessageFailure == 1, "senderLargeMessageFailure",
+  hasGp2gpConversation == 1 and hasRequestorLargeMessageFailure == 1, "requestorLargeMessageFailure",
+  hasGp2gpConversation == 1 and isSenderNotLargeMessageCompliant == 1, "senderIsNotLargeMessageCompliant",
+  hasGp2gpConversation == 1 and failedToGenerateExtract == 1, "failedToGenerateExtract",
+  hasGp2gpConversation == 1 and wasGP2GPDisabled == 1, "GP2GPDisabled",
+  hasGp2gpConversation == 1 and wasPatientNotAtSurgery == 1, "patientNotAtSurgery",
+  hasGp2gpConversation == 1 and wasRequestorNotCurrentPractice == 1, "requestorNotCurrentHealthcareProvider",
+  hasGp2gpConversation == 1 and hasSpineErrorLMRelated == 1, "spineRespondedWithErrorLMRelated",
+  hasGp2gpConversation == 1 and hasSpineError == 1, "spineRespondedWithError"
+  ), "unknown")
+| where hasGp2gpConversation == 1
+| stats
+  list(state) as states
+  first(RequestorSupplier) as requestorSupplier BY RequestorODS, registrationKey
+| eval outcome = coalesce(case(
+  isnotnull(mvfind(states, "integrated")), "integrated",
+  isnotnull(mvfind(states, "suppressed")), "supressed",
+  mvcount(states) = 1 AND mvindex(states, 0) = "requested", "requested",
+  isnotnull(mvfind(states, "senderLargeMessageFailure")), "senderLargeMessageFailure",
+  isnotnull(mvfind(states, "requestorLargeMessageFailure")), "requestorLargeMessageFailure",
+  isnotnull(mvfind(states, "senderIsNotLargeMessageCompliant")), "senderIsNotLargeMessageCompliant",
+  isnotnull(mvfind(states, "failedToGenerateExtract")), "failedToGenerateExtract",
+  isnotnull(mvfind(states, "GP2GPDisabled")), "GP2GPDisabled",
+  isnotnull(mvfind(states, "spineRespondedWithErrorLMRelated")), "spineRespondedWithError-LMrelated",
+  isnotnull(mvfind(states, "spineRespondedWithError")), "spineRespondedWithError",
+  isnotnull(mvfind(states, "patientNotAtSurgery")), "patientNotAtSurgery",
+  isnotnull(mvfind(states, "requestorNotCurrentHealthcareProvider")), "requestorNotCurrentHealthcareProvider"
+  ), "otherError")
+| where requestorSupplier == "TPP" and outcome != "integrated" and outcome != "supressed" and outcome != "requested"
+| chart count by outcome

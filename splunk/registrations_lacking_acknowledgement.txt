@@ -1,0 +1,37 @@
+index="gp2gp-mi" sourcetype="gppractice-RR"
+| eval registrationKey=RegistrationTime + "-" + RegistrationSmartcardUID
+| join type=outer RequestorODS [search index="gp2gp-mi" sourcetype="gppractice-HR"]
+| rex field=RequestorSoftware "(?<RequestorSupplier>.*)_(?<RequestorSystem>.*)_(?<RequestorVersion>.*)"
+| eval requestor_supplier=coalesce(RequestorSupplier, "Unknown")
+| eval has_extract_time=if(isnotnull(ExtractTime), 1, 0)
+| eval has_conversation=if(isnotnull(ConversationID), 1, 0)
+| eval was_integrated = if(ExtractAckStatus == "1" and ExtractAckCode in ("0", "00"), 1, 0)
+| eval was_supressed = if(ExtractAckStatus == "5" and ExtractAckCode == "15", 1, 0)
+| eval was_successful = if(was_integrated == 1 or was_supressed == 1, 1, 0)
+| eval has_request_failure = if(isnotnull(RequestFailureTime) or isnotnull(RequestFailureType), 1, 0)
+| eval has_extract_ack_failure = if(isnotnull(ExtractAckFailureTime) or isnotnull(ExtractAckFailureType), 1, 0)
+| eval has_failure = if(has_request_failure == 1 or has_extract_ack_failure == 1, 1, 0)
+| eval ack_sent =  if(ExtractAckStatus != "0", 1, 0)
+| where requestor_supplier == "TPP" and has_conversation == 1
+| stats
+  first(RequestorODS) as requestor
+  max(was_successful) as has_success
+  max(has_request_failure) as has_request_fail
+  max(has_extract_ack_failure) as has_extract_ack_fail
+  max(has_failure) as has_fail
+  max(has_extract_time) as has_reciept_of_extract
+  max(ack_sent) as was_acked
+  first(requestor_supplier) as supplier
+  BY registrationKey
+| eval ack_not_sent_and_no_failure_and_ehr_recieved = if(was_acked == 0 and has_fail == 0 and has_reciept_of_extract == 1, 1, 0)
+| stats
+count as registrations
+sum(has_success) as successes
+sum(has_reciept_of_extract) as extract_recieved
+sum(has_request_fail) as request_failures
+sum(has_extract_ack_fail) as extract_ack_failures
+sum(was_acked) as was_acked
+sum(ack_not_sent_and_no_failure_and_ehr_recieved) as ehr_lacking_ack
+by requestor, supplier
+| sort -registrations
+| table requestor, supplier, registrations, request_failures, extract_recieved, successes, extract_ack_failures, was_acked, ehr_lacking_ack

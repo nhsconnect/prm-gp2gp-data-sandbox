@@ -1,0 +1,20 @@
+index="gp2gp-mi" sourcetype="gppractice-RR"
+| eval registrationKey=RegistrationTime + "-" + RegistrationSmartcardUID
+| lookup GP2GP-Practice-Lookup PracticeCode AS RequestorODS OUTPUTNEW CurrentClinicalSupplier as RequestorSupplier
+| eval hasGp2gpConversation=if(isnotnull(ConversationID), 1, 0)
+| eval hasRequestorLargeMessageFailure = if(RequestFailurePoint == "60" and RequestFailureType == "1" and RequestErrorCode == "100" and ExtractAckCode == "30", 1, 0)
+| eval hasError = if(isnotnull(RequestFailureTime) and isnotnull(RequestFailureType), 1, 0)
+| eval state = coalesce(case(
+  hasRequestorLargeMessageFailure == 1, "requestorLargeMessageFailure",
+  hasGp2gpConversation == 1 and hasError == 1, "otherError"
+  ), "unknown")
+| stats
+  list(state) as states
+  first(RequestorSupplier) as requestorSupplier
+  BY registrationKey
+| eval outcome = coalesce(case(
+  isnotnull(mvfind(states, "requestorLargeMessageFailure")), "requestor large message failure",
+  isnull(mvfind(states, "requestorLargeMessageFailure")) and isnotnull(mvfind(states, "otherError")), "other error"
+  ), "unknown")
+| where outcome != "unknown" and requestorSupplier == "TPP"
+| chart count by outcome

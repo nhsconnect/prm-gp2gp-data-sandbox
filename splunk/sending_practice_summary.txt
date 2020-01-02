@@ -23,4 +23,4 @@ index="gp2gp-mi" sourcetype="gppractice-SR" SenderODS=$ods_code$
    isnotnull(mvfind(states, "unknownSpineError")), "unknown spine error",
    isnotnull(mvfind(states, "largeMessageGeneralFailure")), "sender large message failure"
   ), "unknown")
-| chart count over month by outcome​
+| chart count over month by outcome

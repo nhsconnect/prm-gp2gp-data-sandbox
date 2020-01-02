@@ -1,0 +1,3 @@
+index="spine2-live" service="gp2gp" conversationID=$conversation_id$
+| table _time, GUID, interactionName, fromMName, toMName, messageType, messageRef, jdiEvent
+| sort _time

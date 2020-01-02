@@ -1,0 +1,14 @@
+index="gp2gp-mi" sourcetype="gppractice-RR"
+| eval registrationKey=RegistrationTime + "-" + RegistrationSmartcardUID
+| join type=outer RequestorODS [search index="gp2gp-mi" sourcetype="gppractice-HR"]
+| rex field=RequestorSoftware "(?<RequestorSupplier>.*)_(?<RequestorSystem>.*)_(?<RequestorVersion>.*)"
+| eval RequestorSupplier=coalesce(RequestorSupplier, "Unknown")
+| eval hasGp2gpConversation=if(isnotnull(ConversationID), 1, 0)
+| eval hasRequestorLargeMessageFailure = if(RequestFailurePoint == "60" and RequestFailureType == "1" and RequestErrorCode == "100" and ExtractAckStatus == "1" and ExtractAckCode == "30", 1, 0)
+| eval month=substr(RegistrationTime, 6, 2)
+| stats
+  first(month) as month,
+  max(hasRequestorLargeMessageFailure) as conversationHadLargeMessageFailure
+  first(RequestorSupplier) as supplier
+  BY registrationKey
+| stats count by supplier, month, conversationHadLargeMessageFailure

@@ -21,8 +21,11 @@ def process_messages(messages):
 def main():
     input_file_name = argv[1]
     csv_file_content = read_gzip_csv_files([input_file_name])
+    print("Content extracted from gzip file")
     spine_messages = construct_messages_from_splunk_items(csv_file_content)
+    print("Messages constructed")
     conversations = process_messages(spine_messages)
+    print("Conversations constructed")
 
     transfers_exceeding_24h = []
     for conversation in conversations:
@@ -49,4 +52,7 @@ def main():
 
 if __name__ == "__main__":
     transfers = main()
-    print("\n".join(transfers))
+    if len(transfers) == 0:
+        print("No transfers found")
+    else:
+        print("\n".join(transfers))

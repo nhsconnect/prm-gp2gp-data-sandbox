@@ -1,0 +1,12 @@
+index="spine2vfmmonitor" service="gp2gp"
+| search interactionID="urn:nhs:names:services:gp2gp/*"
+| eval has_large_message_error = if(jdiEvent IN (23, 25, 29, 30, 31), 1, 0)
+| stats
+  first(_time) as timestamp
+  max(has_large_message_error) as convo_has_large_message_error
+  by conversationID
+| eval month =  strftime(timestamp, "%m-%Y")
+| stats
+  count as transfer_count,
+  sum(convo_has_large_message_error) as transfers_with_large_messaging_error_count
+by month

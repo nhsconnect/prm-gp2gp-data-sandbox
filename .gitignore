@@ -4,3 +4,4 @@ __pycache__
 .DS_Store
 temp_outputs
 .gitattributes
+.vscode

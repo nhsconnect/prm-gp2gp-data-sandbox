@@ -144,3 +144,30 @@ GP_CCG_Mapping = DataSource(
   path=os.path.join(_DATA_DIR_PATH, "epcmem.csv"),
   columns=["ODSCode", "ParentODSCode", "ParentOrganisationType", "JoinParentDate", "LeftParentDate", "AmendedRecordIndicator"]
 )
+
+PRMT_1192_large_message_errors = DataSource(
+  description="""
+  February 2020 - September 2020
+index="spine2vfmmonitor" service="gp2gp"
+| search interactionID="urn:nhs:names:services:gp2gp/*"
+| rex field=fromPartyID "(?<fromODSCode>.+?)(-\d+)"
+| rex field=toPartyID "(?<toODSCode>.+?)(-\d+)"
+| eval has_large_message_error = if(jdiEvent IN (23, 25, 29, 30, 31), 1, 0)
+| eval is_tpp = if(fromODSCode="YGA" or toODSCode="YGA", 1, 0)
+| stats
+  earliest(_time) as timestamp
+  max(has_large_message_error) as convo_has_large_message_error
+  earliest(is_tpp) as is_tpp
+  by conversationID
+| eval month =  strftime(timestamp, "%m-%Y")
+| eval convo_has_tpp_large_message_error = if(convo_has_large_message_error=1 and is_tpp=1, 1, 0)
+| stats
+  count as all_transfers
+  sum(convo_has_large_message_error) as all_large_message_errors
+  sum(is_tpp) as tpp_transfers
+  sum(convo_has_tpp_large_message_error) as tpp_large_message_errors
+by month
+  """,
+  path=os.path.join(_DATA_DIR_PATH, "PRMT_1192_large_message_errors.csv"),
+  columns=None
+)

@@ -5,3 +5,4 @@ __pycache__
 temp_outputs
 .gitattributes
 .vscode
+*.csv.gz

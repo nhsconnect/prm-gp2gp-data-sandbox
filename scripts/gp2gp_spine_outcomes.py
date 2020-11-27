@@ -45,5 +45,5 @@ def calculate_counts(month_file_name: str, next_month_file_name: str, time_range
   for gp2g_transfer in transfers:
       counts[outcome(gp2g_transfer)] += 1
 
-  print(counts)
+  return counts
 

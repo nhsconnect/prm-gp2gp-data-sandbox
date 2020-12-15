@@ -1,0 +1,36 @@
+CREATE OR REPLACE VIEW mi_rr AS 
+SELECT
+  col1 as "RecordType",
+  col2 as "ConversationID",
+  col3 as "RequestorODS",
+  col4 as "SenderODS",
+  col5 as "RegistrationTime",
+  col6 as "RegistrationType",
+  col7 as "RegistrationSmartcardUID",
+  col8 as "RequestFailurePoint",
+  col9 as "RequestFailureTime",
+  col10 as "RequestFailureMessageID",
+  col11 as "RequestFailureType",
+  col12 as "RequestErrorCode",
+  col13 as "RequestErrorDescription",
+  col14 as "RequestRetryCount",
+  col15 as "RequestMessageID",
+  col16 as "RequestTime",
+  col17 as "ExtractTime",
+  col18 as "ExtractMessageID",
+  col19 as "LargeMessageReason",
+  col20 as "LargeMessageFragmentCount",
+  col21 as "LargeMessageFragmentSuccessCount",
+  col22 as "ExtractAckStatus",
+  col23 as "ExtractAckCode",
+  col24 as "ExtractAckTime",
+  col25 as "ExtractAckMessageID",
+  col26 as "ExtractAckFailureTime",
+  col27 as "ExtractAckFailureType",
+  col28 as "ExtractAckErrorCode",
+  col29 as "ExtractAckErrorDescription",
+  col30 as "ExtractAckRetryCount",
+  col31 as "ExtractProcessingUID"
+FROM
+  raw_mi
+WHERE col1='RR'

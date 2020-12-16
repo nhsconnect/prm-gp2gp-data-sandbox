@@ -171,3 +171,22 @@ by month
   path=os.path.join(_DATA_DIR_PATH, "PRMT_1192_large_message_errors.csv"),
   columns=None
 )
+
+PRMT_1145_attachment_sizes = DataSource(
+  description="""
+  SELECT RequestorODS, RequestTime,
+          ConversationID,
+          RequestErrorDescription,
+          CAST(REGEXP_EXTRACT (RequestErrorDescription,
+          'Attachment size : (\d+) is larger than TPP limit : (\d+)', 1) AS INTEGER) / (1024*1024) AS attachment_size_mb, 
+          CAST(REGEXP_EXTRACT (RequestErrorDescription, 
+          'Attachment size : (\d+) is larger than TPP limit : (\d+)', 2) AS INTEGER) / (1024*1024) AS attachment_limit_mb
+  FROM "mi_rr"
+  WHERE RequestTime
+      BETWEEN '2020-02-01'
+          AND '2020-02-29'
+          AND REGEXP_LIKE(RequestErrorDescription, 'Attachment size : (\d+) is larger than TPP limit : (\d+)')
+  """,
+  path=os.path.join(_DATA_DIR_PATH, "PRMT_1145_attachment_sizes.csv"),
+  columns=None
+)

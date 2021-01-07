@@ -6,4 +6,4 @@ temp_outputs
 .gitattributes
 .vscode
 *.csv.gz
-.idea/
+.idea

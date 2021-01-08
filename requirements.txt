@@ -4,3 +4,4 @@ matplotlib==3.3.1
 jupyterlab==2.2.9
 -e git+https://github.com/nhsconnect/prm-gp2gp-data-pipeline.git#egg=gp2gp
 duckdb==0.2.3
+bokeh~=2.2.3

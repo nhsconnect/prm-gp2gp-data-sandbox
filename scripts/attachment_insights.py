@@ -28,7 +28,7 @@ CREATE_OPTIONAL_INT_MACRO_STATEMENT = """
     CASE WHEN field='Unknown' THEN NULL ELSE CAST(field AS INT) END
 """
 
-
+#TODO: Rewrite using relation api?
 def load_attachment_metadata_statement(filename):
     return f"""
         INSERT INTO attachment_metadata

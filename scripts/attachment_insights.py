@@ -18,6 +18,16 @@ CREATE_ATTACHMENT_METADATA_TABLE_STATEMENT = """
     );
 """
 
+CREATE_YES_NO_MACRO_STATEMENT = """
+    CREATE MACRO yes_no_to_bool(field) AS
+    CASE WHEN field='Yes' THEN TRUE WHEN field='No' THEN FALSE ELSE NULL END
+"""
+
+CREATE_OPTIONAL_INT_MACRO_STATEMENT = """
+    CREATE MACRO optional_int(field) AS
+    CASE WHEN field='Unknown' THEN NULL ELSE CAST(field AS INT) END
+"""
+
 
 def load_attachment_metadata_statement(filename):
     return f"""
@@ -29,26 +39,11 @@ def load_attachment_metadata_statement(filename):
             FromSystem as from_system,
             ToSystem as to_system,
             attachmentType as attachment_type,
-            CASE
-                WHEN compressed='Yes' THEN TRUE
-                WHEN compressed='No' THEN FALSE
-                ELSE NULL END
-            as compressed,
+            yes_no_to_bool(compressed) as compressed,
             contentType as content_type,
-            CASE
-                WHEN largeAttachment='Yes' THEN TRUE
-                WHEN largeAttachment='No' THEN FALSE
-                ELSE NULL END
-            as large_attachment,
-            CASE
-                WHEN length='Unknown' THEN NULL
-                ELSE CAST(length AS INT) END
-            as length,
-            CASE
-                WHEN originalBase64='Yes' THEN TRUE
-                WHEN originalBase64='No' THEN FALSE
-                ELSE NULL END
-            as original_base64
+            yes_no_to_bool(largeAttachment) as large_attachment,
+            optional_int(length) as length,
+            yes_no_to_bool(originalBase64) as original_base64 
         FROM read_csv_auto('{filename}', all_varchar=TRUE);
     """
 
@@ -61,6 +56,8 @@ def main():
 
     cursor = duckdb.connect(database_file)
 
+    cursor.execute(CREATE_YES_NO_MACRO_STATEMENT)
+    cursor.execute(CREATE_OPTIONAL_INT_MACRO_STATEMENT)
     cursor.execute(CREATE_ATTACHMENT_METADATA_TABLE_STATEMENT)
 
     for data_file in attachments_data_files:

@@ -47,12 +47,9 @@ def load_attachment_metadata_statement(filename):
         FROM read_csv_auto('{filename}', all_varchar=TRUE);
     """
 
-
-def main():
-    input_data_dir = Path(argv[1])
-    database_file = argv[2]
-
-    attachments_data_files = input_data_dir.rglob("*csv")
+def construct_db_database(input_data_dir, database_file):
+    input_data_dir_path = Path(input_data_dir)
+    attachments_data_files = input_data_dir_path.rglob("*csv")
 
     cursor = duckdb.connect(database_file)
 
@@ -66,6 +63,12 @@ def main():
 
     print("Done")
     cursor.close()
+
+
+def main():
+    input_data_dir = argv[1]
+    database_file = argv[2]
+    construct_db_database(input_data_dir, database_file)
 
 
 if __name__ == "__main__":

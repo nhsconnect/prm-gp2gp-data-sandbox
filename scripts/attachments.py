@@ -49,7 +49,7 @@ def load_attachment_metadata_statement(filename):
     """
 
 
-def load_attachment_metadata(cursor, input_data_dir):
+def construct_attachments_db(cursor, input_data_dir):
     input_data_dir_path = Path(input_data_dir)
     attachments_data_files = input_data_dir_path.rglob("*csv")
 
@@ -63,21 +63,7 @@ def load_attachment_metadata(cursor, input_data_dir):
     return cursor.table("attachment_metadata")
 
 
-def create_view_attachments_count_per_conversation(attachment_metadata):
-    return attachment_metadata \
-        .aggregate("conversation_id, count(*) AS number_attachments") \
-        .order("number_attachments desc") \
-        .create_view("attachments_per_conversation")
-
-
-def create_view_attachment_count_frequency(attachments_per_conversation):
-    return attachments_per_conversation \
-        .aggregate("number_attachments, count(*) AS transfer_count") \
-        .order("number_attachments desc") \
-        .create_view("number_attachment_frequency")
-
-
-def create_view_attachment_statistics(attachment_metadata):
+def query_attachment_statistics(attachment_metadata):
     return attachment_metadata \
         .aggregate("count(*) AS total,"
                    "MIN(length) AS smallest,"
@@ -85,14 +71,18 @@ def create_view_attachment_statistics(attachment_metadata):
                    "MEDIAN(length) AS median,"
                    "QUANTILE(length, 0.75) AS quantile_75,"
                    "MAX(length) AS largest") \
-        .create_view("attachment_statistics")
+        .df()
 
 
-def construct_attachments_db(cursor, input_data_dir):
-    attachment_metadata = load_attachment_metadata(cursor, input_data_dir)
-    create_view_attachment_statistics(attachment_metadata)
-    attachment_count_per_conversation = create_view_attachments_count_per_conversation(attachment_metadata)
-    create_view_attachment_count_frequency(attachment_count_per_conversation)
+def query_attachment_statistics_by_content_type(attachment_metadata):
+    return attachment_metadata \
+        .aggregate("content_type, count(*) AS total,"
+                   "MIN(length) AS smallest,"
+                   "QUANTILE(length, 0.25) AS quantile_25,"
+                   "MEDIAN(length) AS median,"
+                   "QUANTILE(length, 0.75) AS quantile_75,"
+                   "MAX(length) AS largest") \
+        .df()
 
 
 def main():

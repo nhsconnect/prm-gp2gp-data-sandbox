@@ -63,28 +63,6 @@ def construct_attachments_db(cursor, input_data_dir):
     return cursor.table("attachment_metadata")
 
 
-def query_attachment_statistics(attachment_metadata):
-    return attachment_metadata \
-        .aggregate("count(*) AS total,"
-                   "MIN(length) AS smallest,"
-                   "QUANTILE(length, 0.25) AS quantile_25,"
-                   "MEDIAN(length) AS median,"
-                   "QUANTILE(length, 0.75) AS quantile_75,"
-                   "MAX(length) AS largest") \
-        .df()
-
-
-def query_attachment_statistics_by_content_type(attachment_metadata):
-    return attachment_metadata \
-        .aggregate("content_type, count(*) AS total,"
-                   "MIN(length) AS smallest,"
-                   "QUANTILE(length, 0.25) AS quantile_25,"
-                   "MEDIAN(length) AS median,"
-                   "QUANTILE(length, 0.75) AS quantile_75,"
-                   "MAX(length) AS largest") \
-        .df()
-
-
 def main():
     input_data_dir = argv[1]
     database_file = argv[2]

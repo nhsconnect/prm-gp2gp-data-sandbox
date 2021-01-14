@@ -62,7 +62,7 @@ def load_gp2gp_requests_statement(filename):
         SELECT
             strptime(left(_time, 23), '%Y-%m-%dT%H:%M:%S.%g') as time,
             conversationID as conversation_id
-        FROM read_csv_auto('{filename}', all_varchar=TRUE);
+        FROM read_csv_auto('{filename}', all_varchar=TRUE, header=TRUE);
     """
 
 

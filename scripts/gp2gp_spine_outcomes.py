@@ -5,7 +5,7 @@ from gp2gp.spine.transformers import parse_conversation, group_into_conversation
 
 from collections import defaultdict
 
-def _parse_conversations(messages, time_range):
+def parse_conversations(messages, time_range):
     for conversation in group_into_conversations(messages):
         try:
             gp2gp_conversation = parse_conversation(conversation)
@@ -42,7 +42,7 @@ def calculate_counts(month_file_name: str, next_month_file_name: str, time_range
       month_file_name, next_month_file_name
   ])
 
-  conversations = _parse_conversations(spine_messages, time_range=time_range)
+  conversations = parse_conversations(spine_messages, time_range=time_range)
   transfers = derive_transfers(conversations)
 
   counts = defaultdict(int)

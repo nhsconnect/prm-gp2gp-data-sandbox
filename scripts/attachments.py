@@ -14,7 +14,8 @@ CREATE_ATTACHMENT_METADATA_TABLE_STATEMENT = """
             content_type VARCHAR,
             large_attachment BOOLEAN,
             length INT,
-            original_base64 BOOLEAN 
+            original_base64 BOOLEAN,
+            internal_id VARCHAR
     );
 """
 
@@ -22,6 +23,15 @@ CREATE_GP2GP_REQUESTS_TABLE_STATEMENT = """
     CREATE TABLE gp2gp_requests (
             time TIMESTAMP,
             conversation_id VARCHAR
+    );
+"""
+
+CREATE_GP2GP_MESSAGES_TABLE_STATEMENT = """
+    CREATE TABLE gp2gp_messages (
+            time TIMESTAMP,
+            conversation_id VARCHAR,
+            internal_id VARCHAR,
+            interaction_id VARCHAR
     );
 """
 
@@ -51,7 +61,8 @@ def load_attachment_metadata_statement(filename):
             contentType as content_type,
             yes_no_to_bool(largeAttachment) as large_attachment,
             optional_int(length) as length,
-            yes_no_to_bool(originalBase64) as original_base64 
+            yes_no_to_bool(originalBase64) as original_base64,
+            internalID as internal_id
         FROM read_csv_auto('{filename}', all_varchar=TRUE);
     """
 
@@ -66,6 +77,18 @@ def load_gp2gp_requests_statement(filename):
     """
 
 
+def load_gp2gp_messages_statement(filename):
+    return f"""
+        INSERT INTO gp2gp_messages
+        SELECT
+            strptime(left(_time, 23), '%Y-%m-%dT%H:%M:%S.%g') as time,
+            conversationID as conversation_id,
+            internalID as internal_id,
+            interactionID as interaction_id
+        FROM read_csv_auto('{filename}', all_varchar=TRUE, header=TRUE);
+    """
+
+
 def construct_attachments_db(cursor, input_data_dir):
     input_data_dir_path = Path(input_data_dir)
 
@@ -73,6 +96,7 @@ def construct_attachments_db(cursor, input_data_dir):
     cursor.execute(CREATE_OPTIONAL_INT_MACRO_STATEMENT)
     cursor.execute(CREATE_ATTACHMENT_METADATA_TABLE_STATEMENT)
     cursor.execute(CREATE_GP2GP_REQUESTS_TABLE_STATEMENT)
+    cursor.execute(CREATE_GP2GP_MESSAGES_TABLE_STATEMENT)
 
     attachments_data_files = (input_data_dir_path / "attachments_metadata").rglob("*csv")
     for data_file in attachments_data_files:
@@ -81,6 +105,10 @@ def construct_attachments_db(cursor, input_data_dir):
     gp2gp_requests_data_files = (input_data_dir_path / "gp2gp_requests").rglob("*csv")
     for data_file in gp2gp_requests_data_files:
         cursor.execute(load_gp2gp_requests_statement(data_file))
+
+    gp2gp_messages_data_files = (input_data_dir_path / "gp2gp_messages").rglob("*csv")
+    for data_file in gp2gp_messages_data_files:
+        cursor.execute(load_gp2gp_messages_statement(data_file))
 
 
 def main():

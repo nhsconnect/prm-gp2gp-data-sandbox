@@ -19,13 +19,6 @@ CREATE_ATTACHMENT_METADATA_TABLE_STATEMENT = """
     );
 """
 
-CREATE_GP2GP_REQUESTS_TABLE_STATEMENT = """
-    CREATE TABLE gp2gp_requests (
-            time TIMESTAMP,
-            conversation_id VARCHAR
-    );
-"""
-
 CREATE_GP2GP_MESSAGES_TABLE_STATEMENT = """
     CREATE TABLE gp2gp_messages (
             time TIMESTAMP,
@@ -67,16 +60,6 @@ def load_attachment_metadata_statement(filename):
     """
 
 
-def load_gp2gp_requests_statement(filename):
-    return f"""
-        INSERT INTO gp2gp_requests
-        SELECT
-            strptime(left(_time, 23), '%Y-%m-%dT%H:%M:%S.%g') as time,
-            conversationID as conversation_id
-        FROM read_csv_auto('{filename}', all_varchar=TRUE, header=TRUE);
-    """
-
-
 def load_gp2gp_messages_statement(filename):
     return f"""
         INSERT INTO gp2gp_messages
@@ -95,20 +78,13 @@ def construct_attachments_db(cursor, input_data_dir):
     cursor.execute(CREATE_YES_NO_MACRO_STATEMENT)
     cursor.execute(CREATE_OPTIONAL_INT_MACRO_STATEMENT)
     cursor.execute(CREATE_ATTACHMENT_METADATA_TABLE_STATEMENT)
-    cursor.execute(CREATE_GP2GP_REQUESTS_TABLE_STATEMENT)
     cursor.execute(CREATE_GP2GP_MESSAGES_TABLE_STATEMENT)
 
-    attachments_data_files = (input_data_dir_path / "attachments_metadata").rglob("*csv")
-    for data_file in attachments_data_files:
-        cursor.execute(load_attachment_metadata_statement(data_file))
+    attachments_data_file = input_data_dir_path / "attachment_metadata.csv"
+    cursor.execute(load_attachment_metadata_statement(attachments_data_file))
 
-    gp2gp_requests_data_files = (input_data_dir_path / "gp2gp_requests").rglob("*csv")
-    for data_file in gp2gp_requests_data_files:
-        cursor.execute(load_gp2gp_requests_statement(data_file))
-
-    gp2gp_messages_data_files = (input_data_dir_path / "gp2gp_messages").rglob("*csv")
-    for data_file in gp2gp_messages_data_files:
-        cursor.execute(load_gp2gp_messages_statement(data_file))
+    gp2gp_messages_data_file = input_data_dir_path / "gp2gp_messages.csv"
+    cursor.execute(load_gp2gp_messages_statement(gp2gp_messages_data_file))
 
 
 def main():

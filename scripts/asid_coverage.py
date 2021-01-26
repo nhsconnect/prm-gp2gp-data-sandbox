@@ -11,9 +11,8 @@ def main(asid_lookup_file_path, message_senders_file_path):
     senders_set = set(message_senders_df["ASID"])
     mapping_set = set(asid_lookup_df["ASID"].astype(int))
 
-    difference = senders_set - mapping_set
-    percent_not_in_mapping = (len(difference)/len(message_senders_df["ASID"]))*100
-    percent_in_mapping = 100-percent_not_in_mapping
+    asids_in_both_sets = senders_set.intersection(mapping_set)
+    percent_in_mapping = (len(asids_in_both_sets)/len(senders_set))*100
 
     print(f"{round(percent_in_mapping, 2)}% of the ASIDs from the Splunk query are covered by the ASID lookup CSV")
 

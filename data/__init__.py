@@ -190,3 +190,9 @@ PRMT_1145_attachment_sizes = DataSource(
   path=os.path.join(_DATA_DIR_PATH, "PRMT_1145_attachment_sizes.csv"),
   columns=None
 )
+
+gp2gp_response_codes = DataSource(
+  description="GP2GP response codes",
+  path=os.path.join(_DATA_DIR_PATH, "gp2gp_response_codes.csv"),
+  columns=None
+)

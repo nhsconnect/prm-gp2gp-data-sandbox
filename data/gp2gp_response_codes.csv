@@ -1,0 +1,24 @@
+ErrorCode,ErrorName,ResponseText
+06,Not at surgery,Patient not at surgery
+07,GP2GP disabled,GP2GP Messaging is not enabled on this system
+09,Unexpected EHR,EHR Extract received without corresponding request
+10,Failed to generate,Failed to successfully generate EHR Extract
+11,Failed to integrate,Failed to successfully integrate EHR Extract
+12,Duplicate EHR,Duplicate EHR Extract received
+13,Config issue,The system’s configuration prevents it from processing this message
+14,Req not LM compliant,Message not sent because requesting practice is not Large Message compliant
+15,ABA supressed,A-B-A EHR Extract Received and Stored As Suppressed Record
+17,ABA wrong patint,A-B-A EHR Extract Received and rejected due to wrong record or wrong patient
+18,Req malformed,Request message not well-formed or not able to be processed
+19,Unauthorised req,Sender check indicates that Requester is not the patient’s current healthcare provider
+20,Spine error,Spine system responded with an error
+21,Extract malformed,EHR Extract message not well-formed or not able to be processed
+23,Sender not LM compliant,Message not sent because sending practice is not Large Message compliant
+24,SDS lookup,"SDS lookup provided zero or more than one result to the query for each interaction. "
+25,Timeout,Large messages rejected due to timeout duration reached of overall transfer
+26,Filed as attachment,Returning Patient EHR Extract Received and filed as an attachment
+28,Wrong patient,Non A-B-A EHR Extract Received and rejected due to wrong record or wrong patient
+29,LM reassembly,Large Message Re-assembly failure
+30,LM general failure,Large Message general failure
+31,Missing LM,The overall EHR Extract has been rejected because one or more attachments via Large Messages were not received
+99,Unexpected,Unexpected condition

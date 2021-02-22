@@ -1,4 +1,4 @@
-index="gp2gp-mi" sourcetype="gppractice-RR" RequestorODS=$ods_code$
+index="gp2gp_nms_prod" sourcetype="gp2gpmi-rr" RequestorODS=$ods_code$
 | eval registrationKey=RegistrationTime + "-" + RegistrationSmartcardUID
 | eval hasGp2gpConversation=if(isnotnull(ConversationID), 1, 0)
 | eval wasIntegrated = if(ExtractAckStatus == "1" and ExtractAckCode in ("0", "00"), 1, 0)

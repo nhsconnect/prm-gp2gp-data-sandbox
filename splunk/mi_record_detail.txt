@@ -1,3 +1,3 @@
-index="gp2gp-mi" sourcetype="gppractice-RR" ConversationID=$conversation_id$
+index="gp2gp_nms_prod" sourcetype="gp2gpmi-rr" ConversationID=$conversation_id$
 | table *
 | transpose

@@ -1,6 +1,7 @@
-index="gp2gp-mi" sourcetype="gppractice-RR"
+index="gp2gp_nms_prod" sourcetype="gp2gpmi-rr"
 | eval registrationKey=RegistrationTime + "-" + RegistrationSmartcardUID
-| lookup GP2GP-Practice-Lookup PracticeCode AS RequestorODS OUTPUTNEW CurrentClinicalSupplier as RequestorSupplier
+| join type=outer RequestorODS [search index="gp2gp_nms_prod" sourcetype="gp2gpmi-hr"]
+| rex field=RequestorSoftware "(?<RequestorSupplier>.*)_(?<RequestorSystem>.*)_(?<RequestorVersion>.*)"
 | eval hasGp2gpConversation=if(isnotnull(ConversationID), 1, 0)
 | eval wasIntegrated = if(ExtractAckStatus == "1" and ExtractAckCode in ("0", "00"), 1, 0)
 | eval wasSupressed = if(ExtractAckStatus == "5" and ExtractAckCode == "15", 1, 0)

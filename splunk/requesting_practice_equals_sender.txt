@@ -1,4 +1,4 @@
-index="gp2gp-mi" sourcetype="gppractice-RR" RequestorODS=$ods_code$
+index="gp2gp_nms_prod" sourcetype="gp2gpmi-rr" RequestorODS=$ods_code$
 | where RequestorODS=SenderODS
 | eval ConversationID=coalesce(ConversationID, "no ID")
 | eval isNewPatient = if(RegistrationType == "1" and RequestFailurePoint == "60" and RequestFailureType == "5", 1, 0)

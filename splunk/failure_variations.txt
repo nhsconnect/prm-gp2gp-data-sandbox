@@ -1,5 +1,5 @@
-index="gp2gp-mi" sourcetype="gppractice-RR"
-| join type=outer RequestorODS [search index="gp2gp-mi" sourcetype="gppractice-HR"]
+index="gp2gp_nms_prod" sourcetype="gp2gpmi-rr"
+| join type=outer RequestorODS [search index="gp2gp_nms_prod" sourcetype="gp2gpmi-hr"]
 | rex field=RequestorSoftware "(?<RequestorSupplier>.*)_(?<RequestorSystem>.*)_(?<RequestorVersion>.*)"
 | eval requestor_supplier=coalesce(RequestorSupplier, "Unknown")
 | eval registration_type=coalesce(RegistrationType, "-")

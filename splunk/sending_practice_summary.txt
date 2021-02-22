@@ -1,4 +1,4 @@
-index="gp2gp-mi" sourcetype="gppractice-SR" SenderODS=$ods_code$
+index="gp2gp_nms_prod" sourcetype="gp2gpmi-sr" SenderODS=$ods_code$
 | eval requestKey=RequestTime + "-" + SenderODS + "-" + RequestorODS
 | eval wasSentSuccessfully = if(ExtractFailurePoint == "0" and (RequestAckCode == "0" or RequestAckCode == "00"), 1, 0)
 | eval wasRequestNotAcknowledged = if(ExtractFailurePoint == "0" and isnull(RequestAckCode), 1, 0)

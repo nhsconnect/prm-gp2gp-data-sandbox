@@ -1,3 +1,5 @@
-index="spine2-live" service="gp2gp" conversationID=$conversation_id$
-| table _time, GUID, interactionName, fromMName, toMName, messageType, messageRef, jdiEvent
+index="spine2vfmmonitor" service="gp2gp" conversationID=$conversation_id$
+| rex field=fromPartyID "(?<fromNACS>.+?)(-\d+)"
+| rex field=toPartyID "(?<toNACS>.+?)(-\d+)"
+| table _time, GUID, interactionID, fromNACS, toNACS, messageRef, jdiEvent
 | sort _time

@@ -18,7 +18,7 @@ select
   case when length='Unknown' then NULL else cast(length as integer) end as length,
   case when original_base64='Yes' then TRUE when original_base64='No' then FALSE else NULL end as original_base64
 from gp2gp_attachment_ehr_message_ids
-left join gp2gp_attachment_metadata
+join gp2gp_attachment_metadata
   on gp2gp_attachment_metadata.internal_id = gp2gp_attachment_ehr_message_ids.internal_id;
 
 

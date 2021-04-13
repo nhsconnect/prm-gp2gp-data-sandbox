@@ -7,8 +7,8 @@ ErrorCode,ErrorName,ResponseText
 12,Duplicate EHR,Duplicate EHR Extract received
 13,Config issue,The system’s configuration prevents it from processing this message
 14,Req not LM compliant,Message not sent because requesting practice is not Large Message compliant
-15,ABA supressed,A-B-A EHR Extract Received and Stored As Suppressed Record
-17,ABA wrong patint,A-B-A EHR Extract Received and rejected due to wrong record or wrong patient
+15,ABA suppressed,A-B-A EHR Extract Received and Stored As Suppressed Record
+17,ABA wrong patient,A-B-A EHR Extract Received and rejected due to wrong record or wrong patient
 18,Req malformed,Request message not well-formed or not able to be processed
 19,Unauthorised req,Sender check indicates that Requester is not the patient’s current healthcare provider
 20,Spine error,Spine system responded with an error

@@ -1,0 +1,27 @@
+#!/bin/bash
+
+set -Eeo pipefail
+
+for command in "$@"
+do
+  echo "--- ${command} ---"
+  case "${command}" in
+    check-deps)
+        safety check
+        ;;
+    dep)
+        export PATH=~/.local/bin/:$PATH
+        pip install -r requirements.txt
+        ./tasks check-deps > audit-output.txt
+        ;;
+    dojo-dep)
+        dojo "./tasks dep"
+        ;;
+    *)
+        echo "Invalid command: '${command}'"
+        exit 1
+        ;;
+  esac
+done
+
+set +e

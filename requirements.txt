@@ -6,3 +6,4 @@ jupyterlab==2.2.9
 duckdb==0.2.3
 bokeh~=2.2.3
 xlsxwriter==1.3.7
+safety~=1.10

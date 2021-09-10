@@ -14,7 +14,7 @@ directory named after the notebook the data is supporting. This directory
 should be named in the following format:
 
 ```
-[bucket-name]/[story-number]-[description].
+[bucket-name]/[story-number]-[description]
 ```
 
 For example:

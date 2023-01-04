@@ -6,10 +6,16 @@ for command in "$@"
 do
   echo "--- ${command} ---"
   case "${command}" in
+    output-versions)
+      pip --version
+      python --version
+      pipenv --version
+      ;;
     check-deps)
         safety check
         ;;
     dep)
+        ./tasks output-versions
         export PATH=~/.local/bin/:$PATH
         pip install -r requirements.txt
         ./tasks check-deps > audit-output.txt

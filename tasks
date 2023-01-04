@@ -17,7 +17,7 @@ do
     dep)
         ./tasks output-versions
         export PATH=~/.local/bin/:$PATH
-        pip install --quiet -r requirements.txt
+        python -m pip install -r requirements.txt
         ./tasks check-deps > audit-output.txt
         ;;
     dojo-dep)

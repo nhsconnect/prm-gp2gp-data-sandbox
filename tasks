@@ -17,6 +17,7 @@ do
     dep)
         ./tasks output-versions
         export PATH=~/.local/bin/:$PATH
+        pip install --upgrade pip==23.3
         pip install -r requirements.txt
         ./tasks check-deps > audit-output.txt
         ;;

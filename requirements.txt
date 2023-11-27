@@ -6,4 +6,4 @@ duckdb==0.7.1
 bokeh~=3.0
 xlsxwriter==3.0.8
 safety~=2.3.5
-urllib3==1.26.18
+certifi~=2023.07.22
